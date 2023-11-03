@@ -13,6 +13,7 @@
 | スケッチ名 | ハードウェア | 説明 |
 | :--- | :--- | :--- |
 | [HardwareTest](platformio/HardwareTest) |  | ハードウェアが一通り動作するか確認するためのコードです。 |
+| [Blink](platformio/Blink) |  | LEDを点滅します。新たにプロジェクトを作成するときのテンプレートとして使ってください。 |
 | [PlayWave](platformio/PlayWave) |  | 録音データをスピーカーで再生します。 |
 | [GroveAccelerometer16G](platformio/GroveAccelerometer16G) | 🖇️ | [Grove - 3 Axis Digital Accelerometer(±16g)](https://wiki.seeedstudio.com/Grove-3-Axis_Digital_Accelerometer-16g/)の加速度X,Y,ZをUSBのシリアルコンソールに出力します。 |
 | [AnalogIn](platformio/AnalogIn) | 🛠️ |  |
