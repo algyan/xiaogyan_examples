@@ -29,8 +29,11 @@ void setup()
     ////////////////////////////////////////
     // Initialize
 
+    // XIAOGYANライブラリを初期化。
     Xiaogyan.begin();
 
+    // ロータリーエンコーダを回転したときに、EncoderValue_を増加/減少する。
+    // （EncoderValue_は0～19の範囲内。）
     Xiaogyan.encoder.setRotatedHandler([](bool cw){
         const int value = EncoderValue_ + (cw ? -1 : 1);
         EncoderValue_ = constrain(value, 0, 19);
@@ -40,24 +43,29 @@ void setup()
     ////////////////////////////////////////
     // Startup Sequence
 
+    // 「ド」音を鳴らす。
     Xiaogyan.speaker.setTone(262);  // C4
+    // LEDマトリックスを全て赤色点灯。
     Xiaogyan.ledMatrix.setBrightness(2);
     Xiaogyan.ledMatrix.fillScreen(1);
     delay(200);
 
+    // 音を止める。
     Xiaogyan.speaker.setTone(0);
+    // LEDマトリックスを全て消灯。
     Xiaogyan.ledMatrix.fillScreen(0);
 }
 
 void loop()
 {
-    // Xiaogyan
+    // XIAOGYANライブラリを実行。
     Xiaogyan.doWork();
 
-    // LED
+    // LEDを点滅する。
+    // （200ミリ秒点灯、800ミリ秒消灯を繰り返す。）
     Xiaogyan.led.write(millis() % 1000 < 200 ? LOW : HIGH);
 
-    // Buttons
+    // Aボタン、Bボタンで「ド」「レ」「ミ」を鳴らす。
     static bool buttonA = false;
     static bool buttonB = false;
     bool preButtonA = buttonA;
@@ -72,7 +80,7 @@ void loop()
         else                           Xiaogyan.speaker.setTone(0);
     }
 
-    // Led Matrix
+    // LEDマトリックスを流れるように点灯。
     static const int COLOR_MAP[] = { 1, 0, 2, 0, 3, 0, };
     static int x = 0;
     static int y = 0;
