@@ -13,9 +13,9 @@
 ////////////////////////////////////////////////////////////////////////////////
 // setup and loop
 
-enum class Pitch
+enum class NotePitch
 {
-    REST = 0,
+    Rest = 0,
     C4 = 262,
     C4s = 277,
     D4b = 277,
@@ -52,36 +52,57 @@ enum class Pitch
     B5 = 988,
 };
 
-typedef int Duration;
+struct NoteDuration
+{
+    int note;
+    bool dotted;
+    bool tie;
+};
 
 struct Note
 {
-    Pitch pitch;
-    Duration duration;
+    NotePitch pitch;
+    NoteDuration duration;
+
+    static constexpr Note Make(NotePitch pitch, int duration, bool tie = false)
+    {
+        return {pitch, {duration, false, tie}};
+    }
+
+    static constexpr Note MakeDotted(NotePitch pitch, int duration, bool tie = false)
+    {
+        return {pitch, {duration, true, tie}};
+    }
 };
 
 static const Note MelodyItsyBitsySpider[] =
 {
-    {Pitch::F4, 3}, {Pitch::F4, 1}, {Pitch::F4, 3}, {Pitch::G4, 1},
-    {Pitch::A4, 3}, {Pitch::A4, 1}, {Pitch::A4, 3}, {Pitch::A4, 1},
-    {Pitch::G4, 3}, {Pitch::F4, 1}, {Pitch::G4, 3}, {Pitch::A4, 1},
-    {Pitch::F4, 3}, {Pitch::F4, 1}, {Pitch::C4, 4},
+    Note::MakeDotted(NotePitch::F4, 2), Note::Make(NotePitch::F4, 1), Note::MakeDotted(NotePitch::F4, 2), Note::Make(NotePitch::G4, 1),
+    Note::MakeDotted(NotePitch::A4, 2), Note::Make(NotePitch::A4, 1), Note::MakeDotted(NotePitch::A4, 2), Note::Make(NotePitch::A4, 1),
+    Note::MakeDotted(NotePitch::G4, 2), Note::Make(NotePitch::F4, 1), Note::MakeDotted(NotePitch::G4, 2), Note::Make(NotePitch::A4, 1),
+    Note::MakeDotted(NotePitch::F4, 2), Note::Make(NotePitch::F4, 1), Note::Make(NotePitch::C4, 4),
 
-    {Pitch::A4, 3}, {Pitch::A4, 1}, {Pitch::A4, 3}, {Pitch::B4b, 1},
-    {Pitch::C5, 3}, {Pitch::C5, 1}, {Pitch::C5, 3}, {Pitch::C5, 1},
-    {Pitch::B4b, 3}, {Pitch::A4, 1}, {Pitch::B4b, 3}, {Pitch::C5, 1},
-    {Pitch::A4, 4}, {Pitch::REST, 2}, {Pitch::C5, 2},
+    Note::MakeDotted(NotePitch::A4, 2), Note::Make(NotePitch::A4, 1), Note::MakeDotted(NotePitch::A4, 2), Note::Make(NotePitch::B4b, 1),
+    Note::MakeDotted(NotePitch::C5, 2), Note::Make(NotePitch::C5, 1), Note::MakeDotted(NotePitch::C5, 2), Note::Make(NotePitch::C5, 1),
+    Note::MakeDotted(NotePitch::B4b, 2), Note::Make(NotePitch::A4, 1), Note::MakeDotted(NotePitch::B4b, 2), Note::Make(NotePitch::C5, 1),
+    Note::Make(NotePitch::A4, 4), Note::Make(NotePitch::Rest, 2), Note::Make(NotePitch::C5, 2),
 
-    {Pitch::A4, 4}, {Pitch::REST, 2}, {Pitch::C5, 2},
-    {Pitch::A4, 4}, {Pitch::REST, 2}, {Pitch::C5, 2},
-    {Pitch::A4, 2}, {Pitch::C5, 2}, {Pitch::A4, 2}, {Pitch::C5, 2},
-    {Pitch::A4, 4}, {Pitch::REST, 4},
+    Note::Make(NotePitch::A4, 4), Note::Make(NotePitch::Rest, 2), Note::Make(NotePitch::C5, 2),
+    Note::Make(NotePitch::A4, 4), Note::Make(NotePitch::Rest, 2), Note::Make(NotePitch::C5, 2),
+    Note::Make(NotePitch::A4, 2), Note::Make(NotePitch::C5, 2), Note::Make(NotePitch::A4, 2), Note::Make(NotePitch::C5, 2),
+    Note::Make(NotePitch::A4, 4), Note::Make(NotePitch::Rest, 4),
 };
 
-static constexpr int Tempo = 150;
+static constexpr int Tempo = 150;   // TODO
 
 void setup()
 {
+    // USBシリアル通信を初期化。
+    Serial.begin(115200);
+    delay(1000);
+    Serial.println();
+    Serial.println();
+
     // XIAOGYANライブラリを初期化。
     Xiaogyan.begin();
 
@@ -89,8 +110,8 @@ void setup()
     {
         const Note& note = MelodyItsyBitsySpider[i];
         Xiaogyan.speaker.setTone(static_cast<int>(note.pitch));
-        delay(note.duration * Tempo);
-        Xiaogyan.speaker.setTone(0);
+        delay(note.duration.note * (note.duration.dotted ? 1.5 : 1) * Tempo);
+        if (!note.duration.tie) Xiaogyan.speaker.setTone(0);
         delay(10);
     }
 
